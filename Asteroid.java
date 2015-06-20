@@ -1,8 +1,6 @@
 /*
 Asteroid Clone
 
-Written by Bradley Black
-
 Started: 16/6/2015
 Finished:
 
