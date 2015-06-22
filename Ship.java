@@ -1,6 +1,6 @@
 class Ship{
 	private int x, y, xdir, ydir;
-	private final static int SPEED = 4;
+	private final static int SPEED = 1;
 	private final static int SIZE = 10;
 	
 	public Ship(int x, int y){
@@ -26,20 +26,20 @@ class Ship{
 		return SIZE;
 	}	
 
-	public void setXdir(int xdir){
-		this.xdir = xdir;
-	}
-
-	public void setYdir(int ydir){
-		this.ydir = ydir;
-	}
-
 	public void setX(int x){
 		this.x = x;
 	}
 	
 	public void setY(int y){
 		this.y = y;
+	}
+
+	public void setXdir(int xdir){
+		this.xdir = xdir;
+	}
+
+	public void setYdir(int ydir){
+		this.ydir = ydir;
 	}
 
 	public void moveShip(){
