@@ -26,6 +26,10 @@ class Ship{
 		return SIZE;
 	}	
 
+	public int getXdir(){
+		return xdir;
+	}
+	
 	public void setX(int x){
 		this.x = x;
 	}

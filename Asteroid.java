@@ -39,6 +39,7 @@ public class Asteroid extends JFrame implements ActionListener{
 	
 	int score = 0;
 	int highScore = 0;
+	String name = "ABCD";
 	
 	private final static int SIZE = 10;
 	
@@ -47,9 +48,9 @@ public class Asteroid extends JFrame implements ActionListener{
 	TextField tfAsteroidSpeed = new TextField("1");
 	TextField tfShootRate = new TextField("10");
 		
-	int fps;
 	final static int FPS_MIN = 10;
 	final static int FPS_MAX = 30;
+	int fps = FPS_MIN;
 	
 	int asteroidSpawn = 1000;
 	int setAsteroidSpawn = 1;
@@ -143,8 +144,14 @@ public class Asteroid extends JFrame implements ActionListener{
 					case KeyEvent.VK_SPACE: doSpaceKey(); break;
 					//case KeyEvent.VK_P: handlePause(); break;
 				}
-
+				if (ship.getXdir() == -1 && ship.getX() <= 2){
+					ship.setXdir(0); //paws
+				}
+				if (ship.getXdir() == -1 && ship.getX() <= 2){
+					ship.setXdir(0); 
+				}
 			}
+			
 			public void keyReleased(KeyEvent e) {
 				int key = e.getKeyCode();
 				switch(key){
@@ -231,22 +238,32 @@ public class Asteroid extends JFrame implements ActionListener{
 		hasAsteroidCollided();
 		hasShotCollided();
 		hasShipCollided();
+		//doesShipMoveOffScreen();
 	}
 
+	public void doesShipMoveOffScreen(){
+		if (ship.getX() <= 0){
+			ship.setXdir(0); 
+		}
+	}
+		
 	public void hasShipCollided(){
 		for (int i = 0; i < largeAsteroid.size(); i++){
 			if (Math.hypot(ship.getX() - largeAsteroid.get(i).getX(), ship.getY() - largeAsteroid.get(i).getY()) < LARGE_ASTEROID_SIZE){
 				doGameOver();
+				return;
 			}
 		}
 		for (int i = 0; i < medAsteroid.size(); i++){
 			if (Math.hypot(ship.getX() - medAsteroid.get(i).getX(), ship.getY() - medAsteroid.get(i).getY()) < MEDIUM_ASTEROID_SIZE){
 				doGameOver();
+				return;
 			}
 		}
 		for (int i = 0; i < smlAsteroid.size(); i++){
 			if (Math.hypot(ship.getX() - smlAsteroid.get(i).getX(), ship.getY() - smlAsteroid.get(i).getY()) < SMALL_ASTEROID_SIZE){
 				doGameOver();
+				return;
 			}
 		}
 	}
@@ -308,12 +325,14 @@ public class Asteroid extends JFrame implements ActionListener{
 	}
 	
 	public void doGameOver(){
+	//System.out.println("abcd");
 		highScore = score;
-		score = 0;
+		//name = JOptionPane.showInputDialog("Please input your name: ");//Makes a pop up window that allows the user to input their name.
 		gameState = GAME_OVER;
 	}
 	
 	public void resetGame(){
+		fps = FPS_MIN;
 		String errors="";
 		try{
 			fps = Integer.parseInt(tfFPS.getText());
@@ -350,6 +369,7 @@ public class Asteroid extends JFrame implements ActionListener{
 
 			ship = new Ship(50, canvas.getHeight()/2);
 			animationRunning=true;
+			score = 0;
 			gameState = IN_GAME;
 		}
 	}
@@ -374,6 +394,8 @@ public class Asteroid extends JFrame implements ActionListener{
 		g.setColor(Color.green);		
 		g.setFont(new Font("TimesRoman", Font.PLAIN, 32)); 
 		g.drawString("GAMEOVER",  canvas.getWidth()/2 - 50, 30);
+		g.drawString("Score: "+score, canvas.getWidth()/2 - 50, 100);
+		g.drawString("High Score: "+highScore+"  "+name, canvas.getWidth()/2 - 50, 200);
 		g.dispose();
 		strategy.show();
 		Toolkit.getDefaultToolkit().sync();
@@ -393,7 +415,7 @@ public class Asteroid extends JFrame implements ActionListener{
 		for (int i = 0; i < shots.size(); i++){
 			g.drawLine(shots.get(i).getX(), shots.get(i).getY(), shots.get(i).getX() + 10, shots.get(i).getY());
 		}
-
+		
 		//Draw Large Asteroids
 		g.setColor(Color.white);
 		for (int i = 0; i < largeAsteroid.size(); i++){
@@ -437,6 +459,7 @@ public class Asteroid extends JFrame implements ActionListener{
 				//}else if(gameState==PAUSE){
 				//	at.pausedCanvas();
 				}else if(gameState==GAME_OVER){
+					//System.out.println("QWERTY");
 					at.gameOverCanvas();
 				}
 				next_game_tick += SKIP_TICKS;
