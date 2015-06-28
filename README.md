@@ -16,3 +16,7 @@ The medium asteroids now split into small sized ones of size 5 and when
 those are hit a point is gained. I’ve also added ship collision so when
 a ship hits an asteroid a game over function is called and a game over
 canvas.
+
+29/6/2015:
+High score has not been implimented. No saving of high score (might add that, might not). 
+The ship is not supposed to be able to move any less than 0 of the canvas but that dosen't always work. 
