@@ -4,14 +4,22 @@ Asteroids sort of clone in java.
 A sort of clone of Aseroids written in Java.
 
 How to run this? 
+
 Windows - I've no bloody idea.
+
 Mac - You'll need the Java Development Kit (JDK).
+
 1. Place all the files in a directory somewhere.
+
 2. Open the Terminal.
+
 3. CD to the directory containg all the files.
-4.  Enter these two commands excluding the " 
-5.  "javac Asteroid.java"
-6. "java Asteroid"
+
+ Enter these two commands excluding the " 
+
+4.  "javac Asteroid.java"
+
+5. "java Asteroid"
    
    A Java window should now appear with the game.
     
