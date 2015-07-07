@@ -6,13 +6,18 @@ A sort of clone of Aseroids written in Java.
 How to run this? 
 Windows - I've no bloody idea.
 Mac - You'll need the Java Development Kit (JDK).
-      1. Place all the files in a directory somewhere.
-      2. Open the Terminal.
-      3. CD to the directory containg all the files.
-      4. Enter these two commands excluding the " 
-      5. "javac Asteroid.java"
-      6. "java Asteroid"
-      A Java window should now appear with the game.
+1. Place all the files in a directory somewhere.
+2. Open the Terminal.
+3. CD to the directory containg all the files.
+4.  Enter these two commands excluding the " 
+5.  "javac Asteroid.java"
+6. "java Asteroid"
+   
+   A Java window should now appear with the game.
+    
+    
+     
+  
 
 If you compile and run the latest version of this you'll find that there will not be any ship. This is because I don't know what kind of license the sprite I'm using has so it's been excluded for legal reasons. Therefore you can:
 
