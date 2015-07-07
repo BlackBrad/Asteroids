@@ -6,6 +6,8 @@ Written by Bradley Black
 Started: 16/6/2015
 Finished:
 
+Ship sprite is from: http://flylib.com/books/1/122/1/html/2/images/fig11-5.jpg
+
 R:\DigiTech\JDK86\compall.bat "$(FULL_CURRENT_PATH)" "$(CURRENT_DIRECTORY)" "$(NAME_PART)"
 
 Then Press Run
@@ -21,7 +23,7 @@ import java.io.*;
 import javax.swing.*;
 import java.applet.Applet;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
+import java.util.ArrayList;		
 
 public class Asteroid extends JFrame implements ActionListener{
 	Canvas canvas;
@@ -29,6 +31,8 @@ public class Asteroid extends JFrame implements ActionListener{
 	boolean animationRunning = true;
 	private BufferStrategy	strategy;
 	
+	Image shipImg = Toolkit.getDefaultToolkit().createImage("ship.jpg");//Sprite for the ship.
+
 	boolean shooting = false;
 
 	final static int START_UP=0;
@@ -83,10 +87,10 @@ public class Asteroid extends JFrame implements ActionListener{
 	}
 	static {
 		System.setProperty("sun.java2d.transaccel", "True");
-		// System.setProperty("sun.java2d.trace", "timestamp,log,count");
+		System.setProperty("sun.java2d.trace", "timestamp,log,count");
 		System.setProperty("sun.java2d.opengl", "True");
-		//System.setProperty("sun.java2d.d3d", "True");
-		System.setProperty("sun.java2d.ddforcevram", "True");
+		System.setProperty("sun.java2d.d3d", "True");
+		//System.setProperty("sun.java2d.ddforcevram", "True");
 	}
 	
 	public Asteroid(){
@@ -142,13 +146,8 @@ public class Asteroid extends JFrame implements ActionListener{
 					case KeyEvent.VK_S: ship.setYdir(ship.getSpeed()); break;
 					case KeyEvent.VK_D: ship.setXdir(ship.getSpeed()); break;
 					case KeyEvent.VK_SPACE: doSpaceKey(); break;
+					case KeyEvent.VK_R: resetGame(); break;
 					//case KeyEvent.VK_P: handlePause(); break;
-				}
-				if (ship.getXdir() == -1 && ship.getX() <= 2){
-					ship.setXdir(0); //paws
-				}
-				if (ship.getXdir() == -1 && ship.getX() <= 2){
-					ship.setXdir(0); 
 				}
 			}
 			
@@ -193,7 +192,7 @@ public class Asteroid extends JFrame implements ActionListener{
 		ship.moveShip();
 		
 		if (shooting == true){
-			shots.add(new Shot(ship.getX(), ship.getY()));
+			shots.add(new Shot(ship.getX() + ship.getSize() - 3, ship.getY() + ship.getSize()/2));
 			shooting = false;
 		}
 
@@ -221,7 +220,7 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 		
 		//Move small asteroids.
-		for (int i = 0; i < smlAsteroid.size(); i++){
+		for (int i = 0; i < smlAsteroid.size() - 1; i++){
 			smlAsteroid.get(i).moveAsteroid();
 			if (smlAsteroid.get(i).getX() < 0 || smlAsteroid.get(i).getY() < 0 - SMALL_ASTEROID_SIZE || smlAsteroid.get(i).getY() > canvas.getHeight()){
 				//If a small asteroid has moved off of the playing screen then remove it from the array list.
@@ -238,12 +237,17 @@ public class Asteroid extends JFrame implements ActionListener{
 		hasAsteroidCollided();
 		hasShotCollided();
 		hasShipCollided();
-		//doesShipMoveOffScreen();
+		doesShipMoveOffScreen();
 	}
 
 	public void doesShipMoveOffScreen(){
-		if (ship.getX() <= 0){
-			ship.setXdir(0); 
+		if (ship.getY() <= 0){
+			ship.setY(canvas.getHeight() - ship.getSize());
+		}else if (ship.getY() >= canvas.getHeight()){
+			ship.setY(0);
+		}else if (ship.getXdir() < 0 && ship.getX() <= 3){
+			System.out.println(ship.getX());
+			ship.setXdir(0);
 		}
 	}
 		
@@ -300,7 +304,7 @@ public class Asteroid extends JFrame implements ActionListener{
 				}
 			}
 		}
-		for (int i = 0; i <= shots.size() - 1; i++){
+		for (int i = 0; i < shots.size() - 1; i++){
 			for (int j = 0; j < smlAsteroid.size() - 1; j++){
 				if(Math.hypot(shots.get(i).getX() - smlAsteroid.get(j).getX(), shots.get(i).getY() - smlAsteroid.get(j).getY()) < SMALL_ASTEROID_SIZE){
 					shots.remove(i);
@@ -325,9 +329,11 @@ public class Asteroid extends JFrame implements ActionListener{
 	}
 	
 	public void doGameOver(){
-	//System.out.println("abcd");
-		highScore = score;
-		//name = JOptionPane.showInputDialog("Please input your name: ");//Makes a pop up window that allows the user to input their name.
+		if (score > highScore){
+			highScore = score;
+			name = JOptionPane.showInputDialog("Please input your name: ");//Makes a pop up window that allows the user to input their name.
+		}
+		score = 0;
 		gameState = GAME_OVER;
 	}
 	
@@ -361,6 +367,8 @@ public class Asteroid extends JFrame implements ActionListener{
 		if (errors.length() > 0){
 			JOptionPane.showMessageDialog(this,errors);
 		}else{
+			
+			int asteroidSpawn = 1000;
 			largeAsteroid.clear();
 			medAsteroid.clear();
 			smlAsteroid.clear();
@@ -369,8 +377,8 @@ public class Asteroid extends JFrame implements ActionListener{
 
 			ship = new Ship(50, canvas.getHeight()/2);
 			animationRunning=true;
-			score = 0;
 			gameState = IN_GAME;
+
 		}
 	}
 	
@@ -394,8 +402,9 @@ public class Asteroid extends JFrame implements ActionListener{
 		g.setColor(Color.green);		
 		g.setFont(new Font("TimesRoman", Font.PLAIN, 32)); 
 		g.drawString("GAMEOVER",  canvas.getWidth()/2 - 50, 30);
-		g.drawString("Score: "+score, canvas.getWidth()/2 - 50, 100);
-		g.drawString("High Score: "+highScore+"  "+name, canvas.getWidth()/2 - 50, 200);
+		g.drawString("Score: "+score, canvas.getWidth()/2 - 50, 130);
+		g.drawString("High Score: "+highScore+"  "+name, canvas.getWidth()/2 - 50, 230);
+		g.drawString("Press Space or 'R' to restart", canvas.getWidth()/2 - 50, 330);
 		g.dispose();
 		strategy.show();
 		Toolkit.getDefaultToolkit().sync();
@@ -408,7 +417,10 @@ public class Asteroid extends JFrame implements ActionListener{
 		g.setColor(Color.black);
 		g.fillRect(0,0,canvas.getWidth(), canvas.getHeight()); //clears screen
 		g.setColor(Color.white);
-		g.fillRect(ship.getX(), ship.getY(), ship.getSize(), ship.getSize());
+		
+		//Draw ship
+		g.drawImage(shipImg, ship.getX(), ship.getY(), ship.getSize(), ship.getSize(), null);
+		//g.fillRect(ship.getX(), ship.getY(), ship.getSize(), ship.getSize());
 
 		//Draw shots
 		g.setColor(Color.red);
@@ -472,7 +484,6 @@ public class Asteroid extends JFrame implements ActionListener{
 					next_game_tick = System.currentTimeMillis();
 				}					
 			}
-		
 		}
 	}
 }

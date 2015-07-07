@@ -1,6 +1,6 @@
 class Shot{
 	int x, y;
-	final static int xdir = 2;
+	final static int xdir = 5;
 
 	public Shot(int x, int y){
 		this.x = x;
