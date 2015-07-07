@@ -1,7 +1,23 @@
 # Asteroids
 Asteroids sort of clone in java. 
 
-A sort of clone of Aseroids written in Java. 
+A sort of clone of Aseroids written in Java.
+
+How to run this? 
+Windows - I've no bloody idea.
+Mac - You'll need the Java Development Kit (JDK).
+      Place all the files in a directory somewhere.
+      Open the Terminal.
+      CD to the directory containg all the files.
+      Enter these two commands excluding the " 
+      "javac Asteroid.java"
+      "java Asteroid"
+      A Java window should now appear with the game.
+
+If you compile and run the latest version of this you'll find that there will not be any ship. This is because I don't know what kind of license the sprite I'm using has so it's been excluded for legal reasons. Therefore you can:
+
+1. Add you're own sprite image to your local directory with all the files named "ship.jpg"
+2. Uncomment line 423 and comment lines 34 and 422.
 
 20/6/2015:
 Has a working 'ship' that is currently represented by a white square which can move is all direction. Also has a moving shot. 
@@ -20,3 +36,7 @@ canvas.
 29/6/2015:
 High score has not been implimented. No saving of high score (might add that, might not). 
 The ship is not supposed to be able to move any less than 0 of the canvas but that dosen't always work. 
+
+7/7/2015:
+I've added a sprite so what was a square is not represented by an image of a ship.
+The ship now reappears on the top of the screen when the ship moves below canvas height and vice versa
