@@ -1,11 +1,11 @@
 # Asteroids
 Asteroids sort of clone in java. 
 
-A sort of clone of Aseroids written in Java.
+A sort of clone of Asteroids written in Java.
 
 How to run this? 
 
-Windows - I've no bloody idea.
+Windows - Apparently it's the same as below.
 
 Mac - You'll need the Java Development Kit (JDK).
 
