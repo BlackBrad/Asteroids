@@ -1,7 +1,7 @@
 class Ship{
 	private int x, y, xdir, ydir;
 	private final static int SPEED = 3;
-	private final static int SIZE = 23;
+	private final static int SIZE = 20;//50
 	
 	public Ship(int x, int y){
 		this.x = x;
@@ -10,6 +10,7 @@ class Ship{
 		ydir = 0;
 	}
 	
+	//Getters
 	public int getX(){
 		return x;
 	}
@@ -34,6 +35,7 @@ class Ship{
 		return ydir;
 	}
 	
+	//Setters
 	public void setX(int x){
 		this.x = x;
 	}

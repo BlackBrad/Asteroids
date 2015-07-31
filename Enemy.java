@@ -8,6 +8,7 @@ class Enemy{
 		this.ydir = ydir;
 	}
 
+	//Getters	
 	public int getX(){
 		return x;
 	}
@@ -20,6 +21,7 @@ class Enemy{
 		return ydir;
 	}
 
+	//Setters
 	public void setX(int x){
 		this.x = x;
 	}

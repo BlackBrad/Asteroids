@@ -7,6 +7,7 @@ class Shot{
 		this.y = y;
 	}
 
+	//Getters
 	public int getX(){
 		return x;
 	}
@@ -15,6 +16,7 @@ class Shot{
 		return y;
 	}
 
+	//Setters
 	public void setX(int x){
 		this.x = x;
 	}

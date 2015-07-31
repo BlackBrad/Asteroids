@@ -1,5 +1,5 @@
 /*
-Asteroid Clone
+Asteroid Clone Thing
 
 Written by Bradley Black
 
@@ -23,7 +23,9 @@ import java.io.*;
 import javax.swing.*;
 import java.applet.Applet;
 import java.awt.Graphics2D;
-import java.util.ArrayList;		
+import java.util.ArrayList;	
+
+import java.awt.geom.Point2D;	
 
 public class Asteroid extends JFrame implements ActionListener{
 	Canvas canvas;
@@ -32,6 +34,9 @@ public class Asteroid extends JFrame implements ActionListener{
 	private BufferStrategy	strategy;
 	
 	Image shipImg = Toolkit.getDefaultToolkit().createImage("ship.jpg");//Sprite for the ship.
+	//Image shipImg = Toolkit.getDefaultToolkit().createImage("husky.png");//Sprite for the ship.
+	//Image asteroidImg = Toolkit.getDefaultToolkit().createImage("asteroid.png");//Sprite for the asteroid.
+	//Image smllastImg = Toolkit.getDefaultToolkit().createImage("small.png");//Sprite for the ship.
 
 	boolean shooting = false;
 
@@ -45,16 +50,24 @@ public class Asteroid extends JFrame implements ActionListener{
 	int highScore = 0;
 	String name = "ABCD";
 	
+	final static int MIN_SHOT_COOLDOWN=50;
+	final static int MAX_SHOT_COOLDOWN=1000;
+	int shotCoolDown;
+	
 	private final static int SIZE = 10;
+	
+	long timeForNextShot;
 	
 	TextField tfFPS = new TextField("10");
 	TextField tfAsteroidSpawn = new TextField("01");
 	TextField tfAsteroidSpeed = new TextField("1");
-	TextField tfShootRate = new TextField("10");
+	TextField tfShootRate = new TextField("50");
 		
 	final static int FPS_MIN = 10;
 	final static int FPS_MAX = 30;
 	int fps = FPS_MIN;
+	
+	int canShoot = 0;
 	
 	int asteroidSpawn = 1000;
 	int setAsteroidSpawn = 1;
@@ -70,11 +83,9 @@ public class Asteroid extends JFrame implements ActionListener{
 	final static int SHOOT_RATE_MIN = 10;
 	final static int SHOOT_RATE_MAX = 500;
 
-
-	
-	final static int LARGE_ASTEROID_SIZE = 30;
-	final static int MEDIUM_ASTEROID_SIZE = 10;
-	final static int SMALL_ASTEROID_SIZE = 5;
+	final static int LARGE_ASTEROID_SIZE = 30;//100
+	final static int MEDIUM_ASTEROID_SIZE = 10;//30
+	final static int SMALL_ASTEROID_SIZE = 5;//10
 	
 	Ship ship; //Calling the ship class file
 	ArrayList<Enemy> largeAsteroid = new ArrayList<Enemy>();//Large Asteroids
@@ -86,11 +97,11 @@ public class Asteroid extends JFrame implements ActionListener{
 		new Asteroid();
 	}
 	static {
-		System.setProperty("sun.java2d.transaccel", "True");
-		System.setProperty("sun.java2d.trace", "timestamp,log,count");
-		System.setProperty("sun.java2d.opengl", "True");
-		System.setProperty("sun.java2d.d3d", "True");
-		//System.setProperty("sun.java2d.ddforcevram", "True");
+		//System.setProperty("sun.java2d.transaccel", "True");
+		//System.setProperty("sun.java2d.trace", "timestamp,log,count");
+		//System.setProperty("sun.java2d.opengl", "True");
+		//System.setProperty("sun.java2d.d3d", "True");
+		System.setProperty("sun.java2d.ddforcevram", "True");
 	}
 	
 	public Asteroid(){
@@ -158,6 +169,7 @@ public class Asteroid extends JFrame implements ActionListener{
 					case KeyEvent.VK_S: ship.setYdir(0); break;
 					case KeyEvent.VK_A: 
 					case KeyEvent.VK_D: ship.setXdir(0); break;
+					case KeyEvent.VK_SPACE: shooting = false; 
 					//case KeyEvent.VK_SPACE: shooting=false; break;
 				}
 			}     
@@ -188,14 +200,15 @@ public class Asteroid extends JFrame implements ActionListener{
 			ship.setXdir(0);
 			ship.setYdir(0);
 		}
-
+	
+		doesShipMoveOffScreen();
 		ship.moveShip();
-		
+		/*
 		if (shooting == true){
 			shots.add(new Shot(ship.getX() + ship.getSize() - 3, ship.getY() + ship.getSize()/2));
 			shooting = false;
 		}
-
+		*/
 		if(System.currentTimeMillis() > timeForNextAsteroid){
 			largeAsteroid.add(new Enemy(canvas.getWidth() + LARGE_ASTEROID_SIZE, randomInteger(0, canvas.getHeight()), asteroidHorzSpd * -1, randomInteger(-2, 2)));
 			timeForNextAsteroid = System.currentTimeMillis() + asteroidSpawn;
@@ -228,16 +241,37 @@ public class Asteroid extends JFrame implements ActionListener{
 			}
 		}
 		
+		if(shooting){
+			canShoot++;
+		}else{
+			canShoot--;
+		}
+		
 		for (int i = 0; i < shots.size(); i++){
 			shots.get(i).moveShot();
 			if (shots.get(i).getX() > canvas.getWidth()){
 				shots.remove(i);
 			}
 		}
+		
+		if(System.currentTimeMillis() > timeForNextShot && shooting && canShoot <=0){
+			shots.add(new Shot(ship.getX() + ship.getSize(), ship.getY() + ship.getSize() / 2));
+			/*
+			if(timeShootBoosterExpires > System.currentTimeMillis()){
+				timeForNextShot = System.currentTimeMillis() + shotCooldown/2;
+			}
+			else{
+				timeForNextShot = System.currentTimeMillis() + shotCooldown;
+			}
+			*/	
+		}
+		
+		
+		
 		hasAsteroidCollided();
 		hasShotCollided();
 		hasShipCollided();
-		doesShipMoveOffScreen();
+		
 	}
 
 	public void doesShipMoveOffScreen(){
@@ -245,8 +279,7 @@ public class Asteroid extends JFrame implements ActionListener{
 			ship.setY(canvas.getHeight() - ship.getSize());
 		}else if (ship.getY() >= canvas.getHeight()){
 			ship.setY(0);
-		}else if (ship.getXdir() < 0 && ship.getX() <= 3){
-			System.out.println(ship.getX());
+		}else if (ship.getXdir() < 0 && ship.getX() <= 3){//
 			ship.setXdir(0);
 		}
 	}
@@ -284,7 +317,7 @@ public class Asteroid extends JFrame implements ActionListener{
 					}
 					
 					largeAsteroid.remove(j);
-					//asteroidSpawn--;
+					asteroidSpawn--;
 					break;
 				}
 			}
@@ -299,7 +332,7 @@ public class Asteroid extends JFrame implements ActionListener{
 						smlAsteroid.add(new Enemy(medAsteroid.get(j).getX(), medAsteroid.get(j).getY(), asteroidHorzSpd * -1, randomInteger(-2, 2)));
 					}
 					medAsteroid.remove(j);
-					//setAsteroidSpawn--;
+					setAsteroidSpawn--;
 					break;
 				}
 			}
@@ -311,6 +344,7 @@ public class Asteroid extends JFrame implements ActionListener{
 					smlAsteroid.remove(j);
 					//asteroidSpawn--;
 					score++;
+					break;
 				}
 			}
 		}
@@ -364,11 +398,20 @@ public class Asteroid extends JFrame implements ActionListener{
 		}catch(NumberFormatException nfe){
 			errors+="Asteroid Speed is not a number!\n";
 		}
+		try{
+			shotCoolDown = Integer.parseInt(tfShootRate.getText());
+			if(shotCoolDown < MIN_SHOT_COOLDOWN|| shotCoolDown > MAX_SHOT_COOLDOWN){
+				errors+="Shoot Rate is out of bounds! Enter a value less than 1000 and more than 50.\n";
+			}
+		}catch(NumberFormatException nfe){
+			errors+="Asteroid Speed is not a number!\n";
+		}
+
 		if (errors.length() > 0){
 			JOptionPane.showMessageDialog(this,errors);
 		}else{
 			
-			int asteroidSpawn = 1000;
+			//setAsteroidSpawn = 1000;
 			largeAsteroid.clear();
 			medAsteroid.clear();
 			smlAsteroid.clear();
@@ -410,8 +453,6 @@ public class Asteroid extends JFrame implements ActionListener{
 		Toolkit.getDefaultToolkit().sync();
 	}
 	
-	
-	
 	public void updateCanvas(){
 		Graphics2D g= (Graphics2D)strategy.getDrawGraphics();  
 		g.setColor(Color.black);
@@ -423,28 +464,33 @@ public class Asteroid extends JFrame implements ActionListener{
 		//g.fillRect(ship.getX(), ship.getY(), ship.getSize(), ship.getSize());
 
 		//Draw shots
-		g.setColor(Color.red);
+		g.setColor(Color.white);
 		for (int i = 0; i < shots.size(); i++){
-			g.drawLine(shots.get(i).getX(), shots.get(i).getY(), shots.get(i).getX() + 10, shots.get(i).getY());
+			g.drawLine(shots.get(i).getX(), shots.get(i).getY(), shots.get(i).getX() + 20, shots.get(i).getY());
 		}
 		
 		//Draw Large Asteroids
 		g.setColor(Color.white);
 		for (int i = 0; i < largeAsteroid.size(); i++){
 			g.drawOval(largeAsteroid.get(i).getX(), largeAsteroid.get(i).getY(), LARGE_ASTEROID_SIZE, LARGE_ASTEROID_SIZE);
+			//g.drawImage(asteroidImg, largeAsteroid.get(i).getX(), largeAsteroid.get(i).getY(), LARGE_ASTEROID_SIZE, LARGE_ASTEROID_SIZE, null);
 		}
 		
 		//Draw Medium Asteroids
 		for (int i = 0; i < medAsteroid.size(); i++){
 			g.drawOval(medAsteroid.get(i).getX(), medAsteroid.get(i).getY(), MEDIUM_ASTEROID_SIZE, MEDIUM_ASTEROID_SIZE);
+			//smllastImg
+			//g.drawImage(smllastImg, medAsteroid.get(i).getX(), medAsteroid.get(i).getY(), MEDIUM_ASTEROID_SIZE, MEDIUM_ASTEROID_SIZE, null);
 		}
-
+		
 		//Draw Small Asteroids
 		for (int i = 0; i < smlAsteroid.size(); i++){
 			g.drawOval(smlAsteroid.get(i).getX(), smlAsteroid.get(i).getY(), SMALL_ASTEROID_SIZE, SMALL_ASTEROID_SIZE);
+			//g.drawImage(smllastImg, smlAsteroid.get(i).getX(), smlAsteroid.get(i).getY(), SMALL_ASTEROID_SIZE, SMALL_ASTEROID_SIZE, null);
 		}
 		
 		g.drawString("Score:"+score, canvas.getWidth()-100, canvas.getHeight()-10);
+		g.drawString("Gun Charge:"+canShoot * -1, 10, canvas.getHeight()-10);
 		
 		g.dispose();
 		strategy.show();
