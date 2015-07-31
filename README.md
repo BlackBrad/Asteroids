@@ -53,3 +53,6 @@ The ship is not supposed to be able to move any less than 0 of the canvas but th
 7/7/2015:
 I've added a sprite so what was a square is not represented by an image of a ship.
 The ship now reappears on the top of the screen when the ship moves below canvas height and vice versa
+
+31/7/2015: 
+Got shotcool down working and fixed the bug where the ship woulden't stop at X=0. I probably did other stuff that I can't remember as well.
