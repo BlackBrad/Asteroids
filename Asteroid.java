@@ -33,7 +33,7 @@ public class Asteroid extends JFrame implements ActionListener{
 	boolean animationRunning = true;
 	private BufferStrategy	strategy;
 	
-	Image shipImg = Toolkit.getDefaultToolkit().createImage("ship.jpg");//Sprite for the ship.
+	Image shipImg = Toolkit.getDefaultToolkit().createImage("ship.png");//Sprite for the ship.
 	//Image shipImg = Toolkit.getDefaultToolkit().createImage("husky.png");//Sprite for the ship.
 	//Image asteroidImg = Toolkit.getDefaultToolkit().createImage("asteroid.png");//Sprite for the asteroid.
 	//Image smllastImg = Toolkit.getDefaultToolkit().createImage("small.png");//Sprite for the ship.
@@ -72,7 +72,7 @@ public class Asteroid extends JFrame implements ActionListener{
 	int asteroidSpawn = 1000;
 	int setAsteroidSpawn = 1;
 	long timeForNextAsteroid;
-	final static int ASTEROID_SPAWN_MIN = 1;
+	final static int ASTEROID_SPAWN_MIN = 1; 
 	final static int ASTEROID_SPAWN_MAX = 10;
 	
 	int asteroidHorzSpd;
@@ -193,7 +193,28 @@ public class Asteroid extends JFrame implements ActionListener{
 			resetGame();
 		}
 	}
-
+	
+	/*////////////////////////////////////////////////////////*/
+	//This is the update game function.
+	//It deals with almost everything in the game that need to 
+	//be constatly updated such as moving, checking collision.
+	//
+	/*////////////////////////////////////////////////////////*/
+	/*
+ .-.---------------------------------.-.
+((o))                                   )
+ \U/_______          _____         ____/
+   |                                  |
+   |This is the update game function. | 
+   |It deals with almost everything   |
+   |in the game that needs to         |
+   |be constatly updated such as      |
+   |moving, checking collision.       |                       
+   |__    _______    __  ____       __|
+  /A\                                  \
+ ((o))                                  )
+  '-'----------------------------------'
+	*/
 	public void updateGame(){
 		
 		if (gameState != IN_GAME){
@@ -203,12 +224,7 @@ public class Asteroid extends JFrame implements ActionListener{
 	
 		doesShipMoveOffScreen();
 		ship.moveShip();
-		/*
-		if (shooting == true){
-			shots.add(new Shot(ship.getX() + ship.getSize() - 3, ship.getY() + ship.getSize()/2));
-			shooting = false;
-		}
-		*/
+		
 		if(System.currentTimeMillis() > timeForNextAsteroid){
 			largeAsteroid.add(new Enemy(canvas.getWidth() + LARGE_ASTEROID_SIZE, randomInteger(0, canvas.getHeight()), asteroidHorzSpd * -1, randomInteger(-2, 2)));
 			timeForNextAsteroid = System.currentTimeMillis() + asteroidSpawn;
@@ -247,9 +263,10 @@ public class Asteroid extends JFrame implements ActionListener{
 			canShoot--;
 		}
 		
+		//If there are active shots then move them.
 		for (int i = 0; i < shots.size(); i++){
 			shots.get(i).moveShot();
-			if (shots.get(i).getX() > canvas.getWidth()){
+			if (shots.get(i).getX() > canvas.getWidth()){//If active shots move off screen then remove them from array list. 
 				shots.remove(i);
 			}
 		}
@@ -266,24 +283,38 @@ public class Asteroid extends JFrame implements ActionListener{
 			*/	
 		}
 		
-		
-		
+		//Functions checking for collisions.
 		hasAsteroidCollided();
 		hasShotCollided();
 		hasShipCollided();
 		
 	}
 
+	/*////////////////////////////////////////////////////////*/
+	//This is the doesShipMoveOffScreen function
+	//This function checks to see if the user's ship ever 
+	//moves off the screen. 
+	//
+	/*////////////////////////////////////////////////////////*/
+	
 	public void doesShipMoveOffScreen(){
 		if (ship.getY() <= 0){
 			ship.setY(canvas.getHeight() - ship.getSize());
 		}else if (ship.getY() >= canvas.getHeight()){
 			ship.setY(0);
-		}else if (ship.getXdir() < 0 && ship.getX() <= 3){//
-			ship.setXdir(0);
+		}else if (ship.getXdir() < 0 && ship.getX() <= 3){//Does the ship's x reach less than 0 on the canvas?
+			ship.setXdir(0);//Set Xdir to 0 to stop the ship from moving any further than 0.
 		}
 	}
 		
+	/*////////////////////////////////////////////////////////*/
+	//This is the hasShipCollided function
+	//This function checks to see if the user's ship ever 
+	//collides with an asteroid. Since I have three asteroids
+	//it checks each asteroid array to see if the ship and the
+	//asteroid has collided. 
+	/*////////////////////////////////////////////////////////*/	
+	
 	public void hasShipCollided(){
 		for (int i = 0; i < largeAsteroid.size(); i++){
 			if (Math.hypot(ship.getX() - largeAsteroid.get(i).getX(), ship.getY() - largeAsteroid.get(i).getY()) < LARGE_ASTEROID_SIZE){
@@ -362,6 +393,8 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 	}
 	
+	
+	
 	public void doGameOver(){
 		if (score > highScore){
 			highScore = score;
@@ -438,7 +471,6 @@ public class Asteroid extends JFrame implements ActionListener{
 	}
 	
 	public void gameOverCanvas(){
-		
 		Graphics2D g= (Graphics2D)strategy.getDrawGraphics();
 		g.setColor(Color.black);
 		g.fillRect(0,0,canvas.getWidth(), canvas.getHeight());
