@@ -23,10 +23,7 @@ import java.io.*;
 import javax.swing.*;
 import java.applet.Applet;
 import java.awt.Graphics2D;
-import java.util.ArrayList;	
-
-import java.awt.geom.Point2D;	
-
+	
 public class Asteroid extends JFrame implements ActionListener{
 	Canvas canvas;
 	Button startButton, stopButton;
@@ -40,10 +37,10 @@ public class Asteroid extends JFrame implements ActionListener{
 
 	boolean shooting = false;
 
-	final static int START_UP=0;
-	final static int IN_GAME=1;
-	final static int GAME_OVER=2;
-	final static int PAUSE=3;
+	final static int START_UP = 0;
+	final static int IN_GAME = 1;
+	final static int GAME_OVER = 2;
+	final static int PAUSE = 3;
 	int gameState=START_UP;
 	
 	int score = 0;
@@ -69,7 +66,9 @@ public class Asteroid extends JFrame implements ActionListener{
 	
 	int canShoot = 0;
 	
-	int asteroidSpawn = 1000;
+	final static int START_SPAWN_TIME = 1000;
+	
+	int asteroidSpawn;
 	int setAsteroidSpawn = 1;
 	long timeForNextAsteroid;
 	final static int ASTEROID_SPAWN_MIN = 1; 
@@ -170,7 +169,6 @@ public class Asteroid extends JFrame implements ActionListener{
 					case KeyEvent.VK_A: 
 					case KeyEvent.VK_D: ship.setXdir(0); break;
 					case KeyEvent.VK_SPACE: shooting = false; 
-					//case KeyEvent.VK_SPACE: shooting=false; break;
 				}
 			}     
         });
@@ -249,7 +247,7 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 		
 		//Move small asteroids.
-		for (int i = 0; i < smlAsteroid.size() - 1; i++){
+		for (int i = 0; i < smlAsteroid.size(); i++){
 			smlAsteroid.get(i).moveAsteroid();
 			if (smlAsteroid.get(i).getX() < 0 || smlAsteroid.get(i).getY() < 0 - SMALL_ASTEROID_SIZE || smlAsteroid.get(i).getY() > canvas.getHeight()){
 				//If a small asteroid has moved off of the playing screen then remove it from the array list.
@@ -272,19 +270,12 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 		
 		if(System.currentTimeMillis() > timeForNextShot && shooting && canShoot <=0){
+			System.out.println(timeForNextShot - System.currentTimeMillis());
 			shots.add(new Shot(ship.getX() + ship.getSize(), ship.getY() + ship.getSize() / 2));
-			/*
-			if(timeShootBoosterExpires > System.currentTimeMillis()){
-				timeForNextShot = System.currentTimeMillis() + shotCooldown/2;
-			}
-			else{
-				timeForNextShot = System.currentTimeMillis() + shotCooldown;
-			}
-			*/	
+			timeForNextShot = System.currentTimeMillis() + shotCoolDown;
 		}
 		
 		//Functions checking for collisions.
-		hasAsteroidCollided();
 		hasShotCollided();
 		hasShipCollided();
 		
@@ -317,21 +308,21 @@ public class Asteroid extends JFrame implements ActionListener{
 	
 	public void hasShipCollided(){
 		for (int i = 0; i < largeAsteroid.size(); i++){
-			if (Math.hypot(ship.getX() - largeAsteroid.get(i).getX(), ship.getY() - largeAsteroid.get(i).getY()) < LARGE_ASTEROID_SIZE){
+			if (Math.hypot(ship.getX() - largeAsteroid.get(i).getX(), ship.getY() - largeAsteroid.get(i).getY()) < 15){
 				doGameOver();
 				return;
 			}
 		}
 		for (int i = 0; i < medAsteroid.size(); i++){
-			if (Math.hypot(ship.getX() - medAsteroid.get(i).getX(), ship.getY() - medAsteroid.get(i).getY()) < MEDIUM_ASTEROID_SIZE){
+			if (Math.hypot(ship.getX() - medAsteroid.get(i).getX(), ship.getY() - medAsteroid.get(i).getY()) < 15){
 				doGameOver();
 				return;
 			}
 		}
 		for (int i = 0; i < smlAsteroid.size(); i++){
-			if (Math.hypot(ship.getX() - smlAsteroid.get(i).getX(), ship.getY() - smlAsteroid.get(i).getY()) < SMALL_ASTEROID_SIZE){
+			if (Math.hypot(ship.getX() - smlAsteroid.get(i).getX(), ship.getY() - smlAsteroid.get(i).getY()) < 15){
 				doGameOver();
-				return;
+				//return;
 			}
 		}
 	}
@@ -381,27 +372,23 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 	}
 	
-	public void hasAsteroidCollided(){
-		
-		for (int i = 0; i < largeAsteroid.size(); i++){
-			int k = i + 1;
-			if (k >= largeAsteroid.size()) k = 0;
-			if(Math.hypot(largeAsteroid.get(i).getX() - largeAsteroid.get(k).getX(), largeAsteroid.get(i).getY() - largeAsteroid.get(k).getY()) < LARGE_ASTEROID_SIZE/2){
-				largeAsteroid.get(i).setYdir(largeAsteroid.get(i).getYdir() * -1);
-				largeAsteroid.get(k).setYdir(largeAsteroid.get(k).getYdir() * -1);
-			}
-		}
-	}
-	
-	
+	/*////////////////////////////////////////////////////////*/
+	//This is the doGameOver function
+	//
+	//
+	//
+	//
+	/*////////////////////////////////////////////////////////*/	
 	
 	public void doGameOver(){
+		System.out.println("GameOver called");
 		if (score > highScore){
 			highScore = score;
 			name = JOptionPane.showInputDialog("Please input your name: ");//Makes a pop up window that allows the user to input their name.
 		}
 		score = 0;
 		gameState = GAME_OVER;
+		System.out.println("Game state set to Game_Over");
 	}
 	
 	public void resetGame(){
@@ -418,7 +405,8 @@ public class Asteroid extends JFrame implements ActionListener{
 		try{
 			setAsteroidSpawn = Integer.parseInt(tfAsteroidSpawn.getText());
 			if(setAsteroidSpawn < ASTEROID_SPAWN_MIN || setAsteroidSpawn > ASTEROID_SPAWN_MAX){
-				errors+="Asteroid Spawn is out of bounds! Enter a value less than 10 and more than 11.\n";
+				errors+="Asteroid Spawn is out of bounds! Enter a value less than 10 and more than 1.\n";
+				setAsteroidSpawn = 1;
 			}
 		}catch(NumberFormatException nfe){
 			errors+="Asteroid Spawn is not a number!\n";
@@ -427,6 +415,7 @@ public class Asteroid extends JFrame implements ActionListener{
 			asteroidHorzSpd = Integer.parseInt(tfAsteroidSpeed.getText());
 			if(asteroidHorzSpd < ASTEROID_HORIZONTAL_SPD_MIN|| asteroidHorzSpd > ASTEROID_HORIZONTAL_SPD_MAX){
 				errors+="Asteroid Speed is out of bounds! Enter a value less than 5 and more than 1.\n";
+				asteroidHorzSpd = 1;
 			}
 		}catch(NumberFormatException nfe){
 			errors+="Asteroid Speed is not a number!\n";
@@ -444,13 +433,13 @@ public class Asteroid extends JFrame implements ActionListener{
 			JOptionPane.showMessageDialog(this,errors);
 		}else{
 			
-			//setAsteroidSpawn = 1000;
 			largeAsteroid.clear();
 			medAsteroid.clear();
 			smlAsteroid.clear();
 
+			asteroidSpawn = START_SPAWN_TIME;
 			shots.clear();
-
+			canShoot = 0;
 			ship = new Ship(50, canvas.getHeight()/2);
 			animationRunning=true;
 			gameState = IN_GAME;
@@ -475,7 +464,7 @@ public class Asteroid extends JFrame implements ActionListener{
 		g.setColor(Color.black);
 		g.fillRect(0,0,canvas.getWidth(), canvas.getHeight());
 		g.setColor(Color.green);		
-		g.setFont(new Font("TimesRoman", Font.PLAIN, 32)); 
+		g.setFont(new Font("TimesRoman", Font.PLAIN, 32));
 		g.drawString("GAMEOVER",  canvas.getWidth()/2 - 50, 30);
 		g.drawString("Score: "+score, canvas.getWidth()/2 - 50, 130);
 		g.drawString("High Score: "+highScore+"  "+name, canvas.getWidth()/2 - 50, 230);
@@ -496,16 +485,17 @@ public class Asteroid extends JFrame implements ActionListener{
 		//g.fillRect(ship.getX(), ship.getY(), ship.getSize(), ship.getSize());
 
 		//Draw shots
-		g.setColor(Color.white);
+		g.setColor(Color.red);
 		for (int i = 0; i < shots.size(); i++){
-			g.drawLine(shots.get(i).getX(), shots.get(i).getY(), shots.get(i).getX() + 20, shots.get(i).getY());
+			//g.drawLine(shots.get(i).getX(), shots.get(i).getY(), shots.get(i).getX() + 20, shots.get(i).getY());
+			g.drawOval(shots.get(i).getX(), shots.get(i).getY(), 2, 2);
 		}
 		
 		//Draw Large Asteroids
 		g.setColor(Color.white);
 		for (int i = 0; i < largeAsteroid.size(); i++){
 			g.drawOval(largeAsteroid.get(i).getX(), largeAsteroid.get(i).getY(), LARGE_ASTEROID_SIZE, LARGE_ASTEROID_SIZE);
-			//g.drawImage(asteroidImg, largeAsteroid.get(i).getX(), largeAsteroid.get(i).getY(), LARGE_ASTEROID_SIZE, LARGE_ASTEROID_SIZE, null);
+			//g.drawImage(asteroidImg, larg*eAsteroid.get(i).getX(), largeAsteroid.get(i).getY(), LARGE_ASTEROID_SIZE, LARGE_ASTEROID_SIZE, null);
 		}
 		
 		//Draw Medium Asteroids
@@ -529,38 +519,46 @@ public class Asteroid extends JFrame implements ActionListener{
 		Toolkit.getDefaultToolkit().sync();
 	}
 	
+	
 	class AnimationThread extends Thread{
 		Asteroid at;
-		
 		public AnimationThread(Asteroid _at){
 			at=_at;
 			start();
 		}
 		
 		public void run(){
-			int FPS = 30;
-			int SKIP_TICKS = 1000 / FPS;
-			long next_game_tick = System.currentTimeMillis();
-			long sleep_time = 0;
-			while(true){
-				if(gameState==IN_GAME){
-					at.updateGame();
-					at.updateCanvas();
-				//}else if(gameState==PAUSE){
-				//	at.pausedCanvas();
-				}else if(gameState==GAME_OVER){
-					//System.out.println("QWERTY");
-					at.gameOverCanvas();
+			//fps = 30;
+			if (fps > 0){
+				int SKIP_TICKS;
+
+				long next_game_tick = System.currentTimeMillis();
+				// GetTickCount() returns the current number of milliseconds
+				// that have elapsed since the system was started
+
+				long sleep_time = 0;
+				while(true){
+					SKIP_TICKS = 1000 / fps;
+					
+					if(animationRunning){
+						if (gameState == IN_GAME){
+							at.updateGame();
+							at.updateCanvas();
+						}else if (gameState == GAME_OVER){
+							at.gameOverCanvas();
+						}
+						
+						next_game_tick += SKIP_TICKS;
+						sleep_time = next_game_tick - System.currentTimeMillis();
+						if( sleep_time >= 0 ) {
+							try{
+								sleep(sleep_time); //pause 30 millisecs
+							}catch(InterruptedException ie){}
+						}else{
+							next_game_tick = System.currentTimeMillis();
+						}
+					}
 				}
-				next_game_tick += SKIP_TICKS;
-				sleep_time = next_game_tick - System.currentTimeMillis();
-				if( sleep_time >= 0 ) {
-					try{
-						sleep(sleep_time); 
-					}catch(InterruptedException ie){}
-				}else{
-					next_game_tick = System.currentTimeMillis();
-				}					
 			}
 		}
 	}
