@@ -1,7 +1,8 @@
 class Shot{
-	int x, y;
-	final static int xdir = 5;
+	private int x, y;
+	private final static int xdir = 5;
 
+	//Constructor
 	public Shot(int x, int y){
 		this.x = x;
 		this.y = y;

@@ -1,6 +1,7 @@
 class Enemy{
-	int x, y, xdir, ydir;
+	private int x, y, xdir, ydir;
 	
+	//Constructor
 	public Enemy(int x, int y, int xdir, int ydir){
 		this.x = x;
 		this.y = y;
@@ -29,11 +30,7 @@ class Enemy{
 	public void setY(int y){
 		this.y = y;
 	}
-	/*
-	public void setXdir(int xdir){
-		this.xdir = xdir;
-	}
-	*/
+
 	public void setYdir(int ydir){
 		this.ydir = ydir;
 	}

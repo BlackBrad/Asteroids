@@ -31,9 +31,6 @@ public class Asteroid extends JFrame implements ActionListener{
 	private BufferStrategy	strategy;
 	
 	Image shipImg = Toolkit.getDefaultToolkit().createImage("ship.png");//Sprite for the ship.
-	//Image shipImg = Toolkit.getDefaultToolkit().createImage("husky.png");//Sprite for the ship.
-	//Image asteroidImg = Toolkit.getDefaultToolkit().createImage("asteroid.png");//Sprite for the asteroid.
-	//Image smllastImg = Toolkit.getDefaultToolkit().createImage("small.png");//Sprite for the ship.
 
 	boolean shooting = false;
 
@@ -46,10 +43,6 @@ public class Asteroid extends JFrame implements ActionListener{
 	int score = 0;
 	int highScore = 0;
 	String name = "ABCD";
-	
-	final static int MIN_SHOT_COOLDOWN=50;
-	final static int MAX_SHOT_COOLDOWN=1000;
-	int shotCoolDown;
 	
 	private final static int SIZE = 10;
 	
@@ -82,9 +75,9 @@ public class Asteroid extends JFrame implements ActionListener{
 	final static int SHOOT_RATE_MIN = 10;
 	final static int SHOOT_RATE_MAX = 500;
 
-	final static int LARGE_ASTEROID_SIZE = 30;//100
-	final static int MEDIUM_ASTEROID_SIZE = 10;//30
-	final static int SMALL_ASTEROID_SIZE = 5;//10
+	final static int LARGE_ASTEROID_SIZE = 30;
+	final static int MEDIUM_ASTEROID_SIZE = 10;
+	final static int SMALL_ASTEROID_SIZE = 5;
 	
 	Ship ship; //Calling the ship class file
 	ArrayList<Enemy> largeAsteroid = new ArrayList<Enemy>();//Large Asteroids
@@ -192,12 +185,6 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 	}
 	
-	/*////////////////////////////////////////////////////////*/
-	//This is the update game function.
-	//It deals with almost everything in the game that need to 
-	//be constatly updated such as moving, checking collision.
-	//
-	/*////////////////////////////////////////////////////////*/
 	/*
  .-.---------------------------------.-.
 ((o))                                   )
@@ -226,9 +213,15 @@ public class Asteroid extends JFrame implements ActionListener{
 		if(System.currentTimeMillis() > timeForNextAsteroid){
 			largeAsteroid.add(new Enemy(canvas.getWidth() + LARGE_ASTEROID_SIZE, randomInteger(0, canvas.getHeight()), asteroidHorzSpd * -1, randomInteger(-2, 2)));
 			timeForNextAsteroid = System.currentTimeMillis() + asteroidSpawn;
+		}
+	
+		long timeToDecreaseSpawn = System.currentTimeMillis() / 1000;
+		double time = timeToDecreaseSpawn %2;
+		
+		if (time == 1){
 			asteroidSpawn -= setAsteroidSpawn;
 		}
-
+		
 		//Move the large asteroids. 
 		for (int i = 0; i < largeAsteroid.size(); i++){
 			largeAsteroid.get(i).moveAsteroid();
@@ -270,9 +263,8 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 		
 		if(System.currentTimeMillis() > timeForNextShot && shooting && canShoot <=0){
-			System.out.println(timeForNextShot - System.currentTimeMillis());
 			shots.add(new Shot(ship.getX() + ship.getSize(), ship.getY() + ship.getSize() / 2));
-			timeForNextShot = System.currentTimeMillis() + shotCoolDown;
+			timeForNextShot = System.currentTimeMillis() + shootRate;
 		}
 		
 		//Functions checking for collisions.
@@ -280,13 +272,21 @@ public class Asteroid extends JFrame implements ActionListener{
 		hasShipCollided();
 		
 	}
-
-	/*////////////////////////////////////////////////////////*/
-	//This is the doesShipMoveOffScreen function
-	//This function checks to see if the user's ship ever 
-	//moves off the screen. 
-	//
-	/*////////////////////////////////////////////////////////*/
+		/*
+ .-.---------------------------------.-.
+((o))                                   )
+ \U/_______          _____         ____/
+   |                                  |
+   |This is the doesShipMoveOffScreen | 
+   |function This function checks to  |
+   |see if the user's ship ever       |
+   |moves off the screen.             |
+   |                                  |                       
+   |__    _______    __  ____       __|
+  /A\                                  \
+ ((o))                                  )
+  '-'----------------------------------'
+	*/
 	
 	public void doesShipMoveOffScreen(){
 		if (ship.getY() <= 0){
@@ -297,14 +297,25 @@ public class Asteroid extends JFrame implements ActionListener{
 			ship.setXdir(0);//Set Xdir to 0 to stop the ship from moving any further than 0.
 		}
 	}
-		
-	/*////////////////////////////////////////////////////////*/
-	//This is the hasShipCollided function
-	//This function checks to see if the user's ship ever 
-	//collides with an asteroid. Since I have three asteroids
-	//it checks each asteroid array to see if the ship and the
-	//asteroid has collided. 
-	/*////////////////////////////////////////////////////////*/	
+	
+	/*
+ .-.---------------------------------.-.
+((o))                                   )
+ \U/_______          _____         ____/
+   |                                  |
+   |This is the hasShipCollided       | 
+   |function This function checks to  |
+   |see if the user's ship ever       |
+   |collides with an asteroid. Since  |
+   |I have three asteroids it checks  |
+   |each asteroid array to see if the |
+   |asteroid has collided.            |
+   |__    _______    __  ____       __|
+  /A\                                  \
+ ((o))                                  )
+  '-'----------------------------------'
+	*/
+	
 	
 	public void hasShipCollided(){
 		for (int i = 0; i < largeAsteroid.size(); i++){
@@ -326,6 +337,26 @@ public class Asteroid extends JFrame implements ActionListener{
 			}
 		}
 	}
+
+		/*
+ .-.---------------------------------.-.
+((o))                                   )
+ \U/_______          _____         ____/
+   |                                  |
+   |This is the hasShotCollided       | 
+   |function It checks to see if a    |
+   |shot has collided with either the |
+   |small, medium, or large asteroids |
+   |and then if it collides then split|
+   |that asteroid into the correct    |
+   |amount for the next size down.    |
+   |If the shot hits a small asteroid |
+   |then the score increases by one.  |   
+   |__    _______    __  ____       __|
+  /A\                                  \
+ ((o))                                  )
+  '-'----------------------------------'
+	*/
 	
 	public void hasShotCollided(){
 		for (int i = 0; i <= shots.size() - 1; i++){
@@ -365,7 +396,7 @@ public class Asteroid extends JFrame implements ActionListener{
 					shots.remove(i);
 					smlAsteroid.remove(j);
 					//asteroidSpawn--;
-					score++;
+					score++; //Increase score as small asteroid has been destroyed.
 					break;
 				}
 			}
@@ -373,22 +404,34 @@ public class Asteroid extends JFrame implements ActionListener{
 	}
 	
 	/*////////////////////////////////////////////////////////*/
-	//This is the doGameOver function
-	//
-	//
-	//
-	//
+	//This is the doGameOver function.
+	//This function sets the high score if it is more than 
+	//the score, it also sets the game state to GAME_OVER
 	/*////////////////////////////////////////////////////////*/	
 	
+			/*
+ .-.---------------------------------.-.
+((o))                                   )
+ \U/_______          _____         ____/
+   |                                  |
+   |This is the doGameOver function.  | 
+   |This function sets the high score |
+   |if it is more than  the score, it |
+   |also sets the game state to       |
+   |GAME_OVER.                        |
+   |__    _______    __  ____       __|
+  /A\                                  \
+ ((o))                                  )
+  '-'----------------------------------'
+	*/
+	
 	public void doGameOver(){
-		System.out.println("GameOver called");
 		if (score > highScore){
 			highScore = score;
 			name = JOptionPane.showInputDialog("Please input your name: ");//Makes a pop up window that allows the user to input their name.
 		}
 		score = 0;
 		gameState = GAME_OVER;
-		System.out.println("Game state set to Game_Over");
 	}
 	
 	public void resetGame(){
@@ -397,7 +440,7 @@ public class Asteroid extends JFrame implements ActionListener{
 		try{
 			fps = Integer.parseInt(tfFPS.getText());
 			if(fps < FPS_MIN || fps > FPS_MAX){
-				errors+="FPS is out of bounds! Enter a value less than 30 and more than 10.\n";
+				errors+="FPS is out of bounds! Enter a value less than" + FPS_MAX + " and more than " + FPS_MIN + ".\n";
 			}
 		}catch(NumberFormatException nfe){
 			errors+="FPS is not a number!\n";
@@ -405,7 +448,7 @@ public class Asteroid extends JFrame implements ActionListener{
 		try{
 			setAsteroidSpawn = Integer.parseInt(tfAsteroidSpawn.getText());
 			if(setAsteroidSpawn < ASTEROID_SPAWN_MIN || setAsteroidSpawn > ASTEROID_SPAWN_MAX){
-				errors+="Asteroid Spawn is out of bounds! Enter a value less than 10 and more than 1.\n";
+				errors+="Asteroid Spawn is out of bounds! Enter a value less than " + ASTEROID_SPAWN_MAX + " and more than " + ASTEROID_SPAWN_MIN + ".\n";
 				setAsteroidSpawn = 1;
 			}
 		}catch(NumberFormatException nfe){
@@ -414,16 +457,16 @@ public class Asteroid extends JFrame implements ActionListener{
 		try{
 			asteroidHorzSpd = Integer.parseInt(tfAsteroidSpeed.getText());
 			if(asteroidHorzSpd < ASTEROID_HORIZONTAL_SPD_MIN|| asteroidHorzSpd > ASTEROID_HORIZONTAL_SPD_MAX){
-				errors+="Asteroid Speed is out of bounds! Enter a value less than 5 and more than 1.\n";
+				errors+="Asteroid Speed is out of bounds! Enter a value less than " + ASTEROID_HORIZONTAL_SPD_MAX + " and more than " + ASTEROID_HORIZONTAL_SPD_MIN + ".\n";
 				asteroidHorzSpd = 1;
 			}
 		}catch(NumberFormatException nfe){
 			errors+="Asteroid Speed is not a number!\n";
 		}
 		try{
-			shotCoolDown = Integer.parseInt(tfShootRate.getText());
-			if(shotCoolDown < MIN_SHOT_COOLDOWN|| shotCoolDown > MAX_SHOT_COOLDOWN){
-				errors+="Shoot Rate is out of bounds! Enter a value less than 1000 and more than 50.\n";
+			shootRate = Integer.parseInt(tfShootRate.getText());
+			if(shootRate < SHOOT_RATE_MIN|| shootRate > SHOOT_RATE_MAX){
+				errors+="Shoot Rate is out of bounds! Enter a value less than " + SHOOT_RATE_MAX + " and more than " + SHOOT_RATE_MIN + ".\n";
 			}
 		}catch(NumberFormatException nfe){
 			errors+="Asteroid Speed is not a number!\n";
@@ -458,6 +501,15 @@ public class Asteroid extends JFrame implements ActionListener{
 	public int randomInteger(int min, int max){
 		return min + (int)(Math.random() * ((max - min) + 1));
 	}
+	
+	/*////////////////////////////////////////////////////////*/
+	//This is the gameOverCanvas function.
+	//When the gamestate is set to GAME_OVER then this 
+	//function is called. It displays a black screen with 
+	//freen text telling the user how to reset then game it 
+	//displays the currnet score, highscore and name of the 
+	//person who gained the high score. 
+	/*////////////////////////////////////////////////////////*/	
 	
 	public void gameOverCanvas(){
 		Graphics2D g= (Graphics2D)strategy.getDrawGraphics();

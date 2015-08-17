@@ -3,6 +3,7 @@ class Ship{
 	private final static int SPEED = 3;
 	private final static int SIZE = 20;//50
 	
+	//Constructor
 	public Ship(int x, int y){
 		this.x = x;
 		this.y = y;
