@@ -56,3 +56,6 @@ The ship now reappears on the top of the screen when the ship moves below canvas
 
 31/7/2015: 
 Got shotcool down working and fixed the bug where the ship woulden't stop at X=0. I probably did other stuff that I can't remember as well.
+
+20/8/2015:
+I've finished all specifications... Or atleast I think I have. We'll find out when my teacher grades it.
