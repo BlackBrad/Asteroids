@@ -1,12 +1,13 @@
 class Enemy{
-	private int x, y, xdir, ydir;
-	
+	private int x, y, xdir, ydir, size;
+
 	//Constructor
-	public Enemy(int x, int y, int xdir, int ydir){
+	public Enemy(int x, int y, int xdir, int ydir, int size){
 		this.x = x;
 		this.y = y;
 		this.xdir = xdir;
 		this.ydir = ydir;
+		this.size = size;
 	}
 
 	//Getters	
@@ -20,6 +21,10 @@ class Enemy{
 
 	public int getYdir(){
 		return ydir;
+	}
+	
+	public int getSize(){
+		return size;
 	}
 
 	//Setters

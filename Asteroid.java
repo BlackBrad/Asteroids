@@ -4,7 +4,7 @@ Asteroid Clone Thing
 Written by Bradley Black
 
 Started: 16/6/2015
-Finished: 20/8/2015
+Finished: 21/8/2015
 
 Ship sprite is from: http://flylib.com/books/1/122/1/html/2/images/fig11-5.jpg
 
@@ -31,7 +31,10 @@ public class Asteroid extends JFrame implements ActionListener{
 	private BufferStrategy	strategy;
 	
 	Image shipImg = Toolkit.getDefaultToolkit().createImage("ship.png");//Sprite for the ship.
-
+	
+	final static int SCREEN_WIDTH = 1200;
+	final static int SCREEN_HEIGHT = 500;
+	
 	boolean shooting = false;
 
 	final static int START_UP = 0;
@@ -43,6 +46,9 @@ public class Asteroid extends JFrame implements ActionListener{
 	int score = 0;
 	int highScore = 0;
 	String name = "ABCD";
+	
+	//long time = System.currentTimeMillis();
+	long timeEnd = System.currentTimeMillis() + 1000;
 	
 	private final static int SIZE = 10;
 	
@@ -80,9 +86,7 @@ public class Asteroid extends JFrame implements ActionListener{
 	final static int SMALL_ASTEROID_SIZE = 5;
 	
 	Ship ship; //Calling the ship class file
-	ArrayList<Enemy> largeAsteroid = new ArrayList<Enemy>();//Large Asteroids
-	ArrayList<Enemy> medAsteroid = new ArrayList<Enemy>();//Medium Asteroids
-	ArrayList<Enemy> smlAsteroid = new ArrayList<Enemy>();//Small Asteroids
+	ArrayList<Enemy> asteroids = new ArrayList<Enemy>();//Large Asteroids
 	ArrayList<Shot> shots = new ArrayList<Shot>();
 	
 	public static void main(String s[]) {
@@ -99,7 +103,7 @@ public class Asteroid extends JFrame implements ActionListener{
 	public Asteroid(){
 		
 		canvas = new Canvas();
-		canvas.setSize(1200, 500);
+		canvas.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 		
 		Panel buttonPanel = new Panel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -211,39 +215,47 @@ public class Asteroid extends JFrame implements ActionListener{
 		checkShipMoveOffScreen();
 		
 		if (System.currentTimeMillis() > timeForNextAsteroid){
-			largeAsteroid.add(new Enemy(canvas.getWidth() + LARGE_ASTEROID_SIZE, randomInteger(0, canvas.getHeight()), asteroidHorzSpd * -1, randomInteger(-2, 2)));
+			asteroids.add(new Enemy(canvas.getWidth() + LARGE_ASTEROID_SIZE, randomInteger(0, canvas.getHeight()), asteroidHorzSpd * -1, randomInteger(-2, 2), LARGE_ASTEROID_SIZE));
 			timeForNextAsteroid = System.currentTimeMillis() + asteroidSpawn;
 		}
 		
-		long time = System.currentTimeMillis();
-		long timeEnd = time + 1000;
-		if (System.currentTimeMillis() < timeEnd) {
+		//Decrease the rate at which the asteroids spawn
+		//once every second by adding the 1000 onto the
+		//current time in milliseconds and chekcing to 
+		//see if it is less than the current time.
+		
+		if (System.currentTimeMillis() > timeEnd) {
 			asteroidSpawn -= setAsteroidSpawn;
+			timeEnd = System.currentTimeMillis() + 1000;
+			System.out.println("Rate Decrease");
 		}
 		
-		//Move the large asteroids. 
-		for (int i = 0; i < largeAsteroid.size(); i++){
-			largeAsteroid.get(i).moveAsteroid();
-			if (largeAsteroid.get(i).getX() < 0 || largeAsteroid.get(i).getY() < 0 - LARGE_ASTEROID_SIZE || largeAsteroid.get(i).getY() > canvas.getHeight()){
-				//If a large asteroid has moved off of the playing screen then remove it from the array list.
-				largeAsteroid.remove(i);
+		//Move the asteroids. 
+		for (int i = 0; i < asteroids.size(); i++){
+			asteroids.get(i).moveAsteroid();
+			if (asteroids.get(i).getSize() == LARGE_ASTEROID_SIZE){
+				if (doesAsteroidCollide(i)){//Calls function that checks if the asteroid has collided with a shot.
+					for (int j = 0; j < 3; j++){
+						asteroids.add(new Enemy(asteroids.get(i).getX(), asteroids.get(i).getY(), asteroidHorzSpd * -1, randomInteger(-2, 2), MEDIUM_ASTEROID_SIZE));
+					}
+					asteroids.remove(i);
+					break;
+				}
 			}
-		}
-		//Move medium asteroids.
-		for (int i = 0; i < medAsteroid.size(); i++){
-			medAsteroid.get(i).moveAsteroid();
-			if (medAsteroid.get(i).getX() < 0 || medAsteroid.get(i).getY() < 0 - MEDIUM_ASTEROID_SIZE || medAsteroid.get(i).getY() > canvas.getHeight()){
-				//If a medium asteroid has moved off of the playing screen then remove it from the array list.
-				medAsteroid.remove(i);
+			if (asteroids.get(i).getSize() == MEDIUM_ASTEROID_SIZE){
+				if (doesAsteroidCollide(i)){//Calls function that checks if the asteroid has collided with a shot.
+					for (int j = 0; j < 2; j++){
+						asteroids.add(new Enemy(asteroids.get(i).getX(), asteroids.get(i).getY(), asteroidHorzSpd * -1, randomInteger(-2, 2), SMALL_ASTEROID_SIZE));
+					}
+					asteroids.remove(i);
+					break;
+				}
 			}
-		}
-		
-		//Move small asteroids.
-		for (int i = 0; i < smlAsteroid.size(); i++){
-			smlAsteroid.get(i).moveAsteroid();
-			if (smlAsteroid.get(i).getX() < 0 || smlAsteroid.get(i).getY() < 0 - SMALL_ASTEROID_SIZE || smlAsteroid.get(i).getY() > canvas.getHeight()){
-				//If a small asteroid has moved off of the playing screen then remove it from the array list.
-				smlAsteroid.remove(i);
+			if (asteroids.get(i).getSize() == SMALL_ASTEROID_SIZE){
+				if (doesAsteroidCollide(i)){//Calls function that checks if the asteroid has collided with a shot.
+					asteroids.remove(i);
+					break;
+				}
 			}
 		}
 		
@@ -271,7 +283,18 @@ public class Asteroid extends JFrame implements ActionListener{
 		checkShipCollide();
 		
 	}
-		/*
+	
+	public boolean doesAsteroidCollide(int i){
+		for (int j = 0; j < shots.size(); j++){
+			if (Math.hypot(shots.get(j).getX() - asteroids.get(i).getX(), shots.get(j).getY() - asteroids.get(i).getY()) < LARGE_ASTEROID_SIZE){
+				shots.remove(i);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/*
  .-.---------------------------------.-.
 ((o))                                   )
  \U/_______          _____         ____/
@@ -316,23 +339,14 @@ public class Asteroid extends JFrame implements ActionListener{
 	
 	
 	public void checkShipCollide(){
+		/*
 		for (int i = 0; i < largeAsteroid.size(); i++){
 			if (Math.hypot(ship.getX() - largeAsteroid.get(i).getX(), ship.getY() - largeAsteroid.get(i).getY()) < 15){
 				doGameOver();
 				return;
 			}
 		}
-		for (int i = 0; i < medAsteroid.size(); i++){
-			if (Math.hypot(ship.getX() - medAsteroid.get(i).getX(), ship.getY() - medAsteroid.get(i).getY()) < 15){
-				doGameOver();
-				return;
-			}
-		}
-		for (int i = 0; i < smlAsteroid.size(); i++){
-			if (Math.hypot(ship.getX() - smlAsteroid.get(i).getX(), ship.getY() - smlAsteroid.get(i).getY()) < 15){
-				doGameOver();
-			}
-		}
+	*/
 	}
 
 		/*
@@ -356,6 +370,7 @@ public class Asteroid extends JFrame implements ActionListener{
 	*/
 	
 	public void checkShotCollide(){
+		/*
 		for (int i = 0; i <= shots.size() - 1; i++){
 			for (int j = 0; j < largeAsteroid.size() - 1; j++){
 				if (Math.hypot(shots.get(i).getX() - largeAsteroid.get(j).getX(), shots.get(i).getY() - largeAsteroid.get(j).getY()) < LARGE_ASTEROID_SIZE){
@@ -372,31 +387,7 @@ public class Asteroid extends JFrame implements ActionListener{
 				}
 			}
 		}
-		for (int i = 0; i <= shots.size() - 1; i++){
-			for (int j = 0; j < medAsteroid.size(); j++){
-				if (Math.hypot(shots.get(i).getX() - medAsteroid.get(j).getX(), shots.get(i).getY() - medAsteroid.get(j).getY()) < MEDIUM_ASTEROID_SIZE){
-					shots.remove(i);
-					
-					//Need to add two new small sized asteroids before the medium asteroid has been removed. 
-					//This is so that the small asteroids can appear at the same location as the medium asteroid.
-					for (int k = 0; k < 2; k++){
-						smlAsteroid.add(new Enemy(medAsteroid.get(j).getX(), medAsteroid.get(j).getY(), asteroidHorzSpd * -1, randomInteger(-2, 2)));
-					}
-					medAsteroid.remove(j);
-					break;
-				}
-			}
-		}
-		for (int i = 0; i < shots.size(); i++){
-			for (int j = 0; j < smlAsteroid.size() - 1; j++){
-				if (Math.hypot(shots.get(i).getX() - smlAsteroid.get(j).getX(), shots.get(i).getY() - smlAsteroid.get(j).getY()) < SMALL_ASTEROID_SIZE){
-					shots.remove(i);
-					smlAsteroid.remove(j);
-					score++; //Increase score as small asteroid has been destroyed.
-					break;
-				}
-			}
-		}
+		*/
 	}
 	
 	/*
@@ -484,9 +475,7 @@ public class Asteroid extends JFrame implements ActionListener{
 			
 			//Clear array lists to avoid any stray asteroids 
 			//or shots from reapearing when the game is reset.
-			largeAsteroid.clear();
-			medAsteroid.clear();
-			smlAsteroid.clear();
+			asteroids.clear();
 			shots.clear();
 			
 			score = 0;
@@ -563,18 +552,8 @@ public class Asteroid extends JFrame implements ActionListener{
 		
 		//Draw Large Asteroids
 		g.setColor(Color.white);
-		for (int i = 0; i < largeAsteroid.size(); i++){
-			g.drawOval(largeAsteroid.get(i).getX(), largeAsteroid.get(i).getY(), LARGE_ASTEROID_SIZE, LARGE_ASTEROID_SIZE);
-		}
-		
-		//Draw Medium Asteroids
-		for (int i = 0; i < medAsteroid.size(); i++){
-			g.drawOval(medAsteroid.get(i).getX(), medAsteroid.get(i).getY(), MEDIUM_ASTEROID_SIZE, MEDIUM_ASTEROID_SIZE);
-		}
-		
-		//Draw Small Asteroids
-		for (int i = 0; i < smlAsteroid.size(); i++){
-			g.drawOval(smlAsteroid.get(i).getX(), smlAsteroid.get(i).getY(), SMALL_ASTEROID_SIZE, SMALL_ASTEROID_SIZE);
+		for (int i = 0; i < asteroids.size(); i++){
+			g.drawOval(asteroids.get(i).getX(), asteroids.get(i).getY(), asteroids.get(i).getSize(), asteroids.get(i).getSize());
 		}
 		
 		g.drawString("Score:"+score, canvas.getWidth()-100, canvas.getHeight()-10);
