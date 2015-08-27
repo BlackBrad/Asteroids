@@ -230,7 +230,7 @@ public class Asteroid extends JFrame implements ActionListener{
 			System.out.println("Rate Decrease");
 		}
 		
-		//Move the asteroids. 
+		//Move asteroids
 		for (int i = 0; i < asteroids.size(); i++){
 			asteroids.get(i).moveAsteroid();
 			if (asteroids.get(i).getSize() == LARGE_ASTEROID_SIZE){
@@ -239,7 +239,7 @@ public class Asteroid extends JFrame implements ActionListener{
 						asteroids.add(new Enemy(asteroids.get(i).getX(), asteroids.get(i).getY(), asteroidHorzSpd * -1, randomInteger(-2, 2), MEDIUM_ASTEROID_SIZE));
 					}
 					asteroids.remove(i);
-					break;
+					return;
 				}
 			}
 			if (asteroids.get(i).getSize() == MEDIUM_ASTEROID_SIZE){
@@ -248,13 +248,14 @@ public class Asteroid extends JFrame implements ActionListener{
 						asteroids.add(new Enemy(asteroids.get(i).getX(), asteroids.get(i).getY(), asteroidHorzSpd * -1, randomInteger(-2, 2), SMALL_ASTEROID_SIZE));
 					}
 					asteroids.remove(i);
-					break;
+					return;
 				}
 			}
 			if (asteroids.get(i).getSize() == SMALL_ASTEROID_SIZE){
 				if (doesAsteroidCollide(i)){//Calls function that checks if the asteroid has collided with a shot.
 					asteroids.remove(i);
-					break;
+					score++;//Increase score as small asteroid has been hit.
+					return;
 				}
 			}
 		}
@@ -270,6 +271,7 @@ public class Asteroid extends JFrame implements ActionListener{
 			shots.get(i).moveShot();
 			if (shots.get(i).getX() > canvas.getWidth()){//If active shots move off screen then remove them from array list. 
 				shots.remove(i);
+				break;
 			}
 		}
 		
@@ -284,10 +286,15 @@ public class Asteroid extends JFrame implements ActionListener{
 		
 	}
 	
+
+	//This is the doesAsteroidCollide function. 
+	//This function checks to see if a shot and
+	//an asteroid have collided. If so it returns 
+	//true otherwise it returns false. 
 	public boolean doesAsteroidCollide(int i){
 		for (int j = 0; j < shots.size(); j++){
 			if (Math.hypot(shots.get(j).getX() - asteroids.get(i).getX(), shots.get(j).getY() - asteroids.get(i).getY()) < LARGE_ASTEROID_SIZE){
-				shots.remove(i);
+				shots.remove(j);
 				return true;
 			}
 		}
@@ -339,55 +346,12 @@ public class Asteroid extends JFrame implements ActionListener{
 	
 	
 	public void checkShipCollide(){
-		/*
-		for (int i = 0; i < largeAsteroid.size(); i++){
-			if (Math.hypot(ship.getX() - largeAsteroid.get(i).getX(), ship.getY() - largeAsteroid.get(i).getY()) < 15){
+		for (int i = 0; i < asteroids.size(); i++){
+			if (Math.hypot(ship.getX() - asteroids.get(i).getX(), ship.getY() - asteroids.get(i).getY()) < 10){
 				doGameOver();
 				return;
 			}
 		}
-	*/
-	}
-
-		/*
- .-.---------------------------------.-.
-((o))                                   )
- \U/_______          _____         ____/
-   |                                  |
-   |This is the hasShotCollided       | 
-   |function It checks to see if a    |
-   |shot has collided with either the |
-   |small, medium, or large asteroids |
-   |and then if it collides then split|
-   |that asteroid into the correct    |
-   |amount for the next size down.    |
-   |If the shot hits a small asteroid |
-   |then the score increases by one.  |   
-   |__    _______    __  ____       __|
-  /A\                                  \
- ((o))                                  )
-  '-'----------------------------------'
-	*/
-	
-	public void checkShotCollide(){
-		/*
-		for (int i = 0; i <= shots.size() - 1; i++){
-			for (int j = 0; j < largeAsteroid.size() - 1; j++){
-				if (Math.hypot(shots.get(i).getX() - largeAsteroid.get(j).getX(), shots.get(i).getY() - largeAsteroid.get(j).getY()) < LARGE_ASTEROID_SIZE){
-					shots.remove(i);
-					
-					//Need to add three new medium sized asteroids before the large asteroid has been removed. 
-					//This is so that the medium asteroids can appear at the same location as the large asteroid.
-					for (int k = 0; k < 3; k++){
-						medAsteroid.add(new Enemy(largeAsteroid.get(j).getX(), largeAsteroid.get(j).getY(), asteroidHorzSpd * -1, randomInteger(-2, 2)));
-					}
-					
-					largeAsteroid.remove(j);
-					break;
-				}
-			}
-		}
-		*/
 	}
 	
 	/*
