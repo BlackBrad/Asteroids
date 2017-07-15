@@ -1,0 +1,18 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Java",
+            "type": "java",
+            "preLaunchTask": "compile",
+            "request": "launch",
+            "stopOnEntry": false,
+            "jdkPath": "/Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home/bin",
+            "cwd": "${fileDirname}",
+            "startupClass": "Asteroid",
+            "options": [
+                "Asteroid"
+            ]
+        }
+    ]
+}
