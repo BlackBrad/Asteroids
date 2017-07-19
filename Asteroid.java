@@ -248,7 +248,9 @@ public class Asteroid extends JFrame implements ActionListener{
 		}
 		
 		if (shooting){
-			canShoot++;
+			if (canShoot < 0){
+				canShoot++;
+			}
 		}else{
 			canShoot--;
 		}
@@ -261,7 +263,7 @@ public class Asteroid extends JFrame implements ActionListener{
 			}
 		}
 		
-		if (System.currentTimeMillis() > timeForNextShot && shooting && canShoot <=0){
+		if (System.currentTimeMillis() > timeForNextShot && shooting && canShoot < 0){
 			shots.add(new Shot(ship.getX() + ship.getSize(), ship.getY() + ship.getSize() / 2));
 			timeForNextShot = System.currentTimeMillis() + shootRate;
 		}
